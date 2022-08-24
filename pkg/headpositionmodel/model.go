@@ -15,14 +15,14 @@ const CrouchingHeadAngleAdjustmentAdd = 17.5
 const StandingHeadAngleAdjustmentMul = 1.1
 const CrouchingHeadAngleAdjustmentMul = 0.75
 
-func Deg2Rad(angleInDegrees float64) float64 {
+func deg2Rad(angleInDegrees float64) float64 {
 	return (angleInDegrees) * math.Pi / 180.0
 }
-func Rad2Degree(angleInRadians float64) float64 {
+func rad2Degree(angleInRadians float64) float64 {
 	return (angleInRadians) * 180.0 / math.Pi
 }
 
-func AngleVectors(angles r2.Point) r3.Vector {
+func angleVectors(angles r2.Point) r3.Vector {
 	// https://github.com/ValveSoftware/source-sdk-2013/blob/master/sp/src/mathlib/mathlib_base.cpp#L901-L914
 	// https://developer.valvesoftware.com/wiki/QAngle - QAngle is just a regular Euler angle
 	var forward r3.Vector
@@ -47,14 +47,14 @@ func ModelHeadPosition(eyePosition r3.Vector, viewAngles r2.Point, duckAmount fl
 		(1-duckAmount)*StandingHeadAngleAdjustmentMul
 	adjustedPitch := (viewAngles.Y*-1.+90.)/2.*headAngleAdjustmentMul + headAngleAdjustmentAdd
 	// get unit vec of just x and y (z already handled)
-	viewVec := AngleVectors(viewAngles)
+	viewVec := angleVectors(viewAngles)
 	viewVec.Z = 0.
 	unitViewVec := viewVec.Normalize()
 	neckDownAmount := duckAmount*DuckingNeckDownAmount + (1-duckAmount)*StandingNeckDownAmount
 	headForwardAmount := duckAmount*DuckingHeadForwardAmount + (1-duckAmount)*StandingHeadForwardAmount
 	return r3.Vector{
-		X: eyePosition.X + math.Cos(Deg2Rad(adjustedPitch))*unitViewVec.X*headForwardAmount,
-		Y: eyePosition.Y + math.Cos(Deg2Rad(adjustedPitch))*unitViewVec.Y*headForwardAmount,
-		Z: eyePosition.Z - neckDownAmount + math.Sin(Deg2Rad(adjustedPitch))*headForwardAmount,
+		X: eyePosition.X + math.Cos(deg2Rad(adjustedPitch))*unitViewVec.X*headForwardAmount,
+		Y: eyePosition.Y + math.Cos(deg2Rad(adjustedPitch))*unitViewVec.Y*headForwardAmount,
+		Z: eyePosition.Z - neckDownAmount + math.Sin(deg2Rad(adjustedPitch))*headForwardAmount,
 	}
 }
