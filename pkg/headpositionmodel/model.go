@@ -58,3 +58,32 @@ func ModelHeadPosition(eyePosition r3.Vector, viewAngles r2.Point, duckAmount fl
 		Z: eyePosition.Z - neckDownAmount + math.Sin(deg2Rad(adjustedPitch))*headForwardAmount,
 	}
 }
+
+type AABB struct {
+	minCorner r3.Vector
+	maxCorner r3.Vector
+}
+
+const PlayerStandingHeight = 72
+const PlayerCrouchedHeight = 54
+const PlayerWidth = 32
+
+func getAABBForPlayer(footPosition r3.Vector, duckAmount float64) AABB {
+	//https://developer.valvesoftware.com/wiki/Counter-Strike:_Global_Offensive_Mapper%27s_Reference
+	// looks like coordinates are center at feet - tested using getpos_exact and box commands from
+	//https://old.reddit.com/r/csmapmakers/comments/58ch3f/useful_console_commands_for_map_making_csgo/
+	//making box with these coordinates wraps player perfectly
+	// https://developer.valvesoftware.com/wiki/Dimensions#Eyelevel
+	// eye level is 64 units when standing, 46 when crouching
+	// these numbers are weird, use mappers reference not this
+	// getpos is eye level, getpos_exact is foot, both are center of model
+	height := duckAmount*PlayerCrouchedHeight + (1.-duckAmount)*PlayerStandingHeight
+	return AABB{
+		minCorner: r3.Vector{
+			footPosition.X - PlayerWidth/2, footPosition.Y - PlayerStandingHeight/2, footPosition.Z,
+		},
+		maxCorner: r3.Vector{
+			footPosition.X - PlayerWidth/2, footPosition.Y - PlayerStandingHeight/2, footPosition.Z + height,
+		},
+	}
+}
